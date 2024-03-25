@@ -1,0 +1,37 @@
+- name: Build and deploy container
+  hosts: dockerserver
+  gather_facts: false
+  remote_user: root
+  tasks:
+    - name: Stop the container
+      docker_container:
+        name: landing-container
+        image: landing:latest
+        state: stopped
+
+    - name: Remove the container
+      docker_container:
+        name: landing-container
+        image: landing:latest
+        state: absent
+
+    - name: Remove the image
+      docker_image:
+        name: landing:latest
+        state: absent
+
+    - name: Build Docker Image
+      docker_image:
+        name: landing:latest
+        source: build
+        build:
+          path: ~/project/
+        state: present
+
+    - name: Create the container
+      docker_container:
+        name: landing-container
+        image: landing:latest
+        ports:
+          - "80:80"
+        state: started
